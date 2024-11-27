@@ -13,6 +13,7 @@ This project demonstrates how to add both image and text watermarks to every pag
 
 Below is a screenshot of a generated PDF with the watermark applied:
 
+![PDF Watermark Preview](https://github.com/AromalShaji/dompdf-watermark/blob/main/Screenshot1.png)
 ![PDF Watermark Preview](https://github.com/AromalShaji/dompdf-watermark/blob/main/Screenshot.png)
 
 ## Requirements
