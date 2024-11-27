@@ -30,7 +30,7 @@ To set up and run this project, follow these steps:
 1. **Clone this repository:**
 
     ```bash
-    git clone https://github.com/your-username/dompdf-watermark-system.git
+    git clone https://github.comAromalShaji/dompdf-watermark.git
     ```
 
 2. **Navigate to the project folder:**
