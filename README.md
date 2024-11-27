@@ -36,7 +36,7 @@ To set up and run this project, follow these steps:
 2. **Navigate to the project folder:**
 
     ```bash
-    cd dompdf-watermark-system
+    cd dompdf-watermark
     ```
 
 3. **Install dependencies using Composer:**
