@@ -1,66 +1,119 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+# DOMPDF Watermark System
 
-## About Laravel
+This project demonstrates how to add both image and text watermarks to every page of a PDF using the DOMPDF library in PHP. It allows you to add a semi-transparent image as a watermark and text vertically aligned on the left side of each page.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### Key Features:
+- Add a centered image watermark to every page.
+- Add vertically aligned text watermark to the left side of each page.
+- Control the opacity (transparency) for both image and text.
+- Automatically adjusts watermark placement for multi-page PDFs.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Preview
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Below is a screenshot of a generated PDF with the watermark applied:
 
-## Learning Laravel
+![PDF Watermark Preview](screenshot.png)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Requirements
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+- PHP 7.4 or higher.
+- DOMPDF library installed via Composer.
+- A valid PNG image for the watermark.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Installation
 
-## Laravel Sponsors
+To set up and run this project, follow these steps:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+1. **Clone this repository:**
 
-### Premium Partners
+    ```bash
+    git clone https://github.com/your-username/dompdf-watermark-system.git
+    ```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+2. **Navigate to the project folder:**
 
-## Contributing
+    ```bash
+    cd dompdf-watermark-system
+    ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+3. **Install dependencies using Composer:**
 
-## Code of Conduct
+    ```bash
+    composer require dompdf/dompdf
+    ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+4. **Place your watermark image in the `public/uploads/` folder.**
 
-## Security Vulnerabilities
+5. **Update the image path in the script:**
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+    ```php
+    public_path('uploads/X.png');
+    ```
 
-## License
+---
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Code Explanation
+
+```php
+$canvas = $dompdf->getCanvas();
+
+// Convert the image to Base64 for embedding
+$imageBase64 = base64_encode(file_get_contents(public_path('uploads/X.png')));
+$imageMimeType = 'image/png';
+$imageWidth = 500;
+$imageHeight = 500;
+$watermarkText = "GENERATED BY DOMPDF WATERMARK SYSTEM";
+
+// Font metrics are used for text positioning
+$fontMetrics = $dompdf->getFontMetrics();
+
+$canvas->page_script(function ($pageNumber, $pageCount, $canvas) use ($fontMetrics, $imageBase64, $imageMimeType, $imageWidth, $imageHeight, $watermarkText) {
+    // Get the width and height of the page
+    $pageWidth = $canvas->get_width();
+    $pageHeight = $canvas->get_height();
+
+    // Calculate the position of the image to center it on the page
+    $imageX = ($pageWidth - $imageWidth) / 2;
+    $imageY = ($pageHeight - $imageHeight) / 2;
+
+    // Set opacity for the image (semi-transparent)
+    $canvas->set_opacity(0.2);  
+    // Add the image watermark to the page
+    $canvas->image('data:' . $imageMimeType . ';base64,' . $imageBase64, $imageX, $imageY, $imageWidth, $imageHeight, 'png');
+
+    // Set opacity back to 1 (fully opaque) for the text watermark
+    $canvas->set_opacity(1);
+
+    // Set the font for the text watermark
+    $font = $fontMetrics->getFont("Times-Roman");
+    $fontSize = 9;
+
+    // Calculate the width and height for the text watermark
+    $textWidth = $fontMetrics->getTextWidth($watermarkText, $font, $fontSize);
+
+    // Set the position for the text watermark (left side of the page, vertically aligned)
+    $textX = 20;
+    $textY = $pageHeight - 200; 
+
+    // Add the text watermark to the page with vertical rotation
+    $canvas->page_text($textX, $textY, $watermarkText, $font, $fontSize, [0.5, 0.5, 0.5], 0.0, 3, -90);
+});
+
+
+---
+
+### Explanation of Key Points:
+
+- **Installation Instructions**: 
+  - **Clone the repository**: `git clone https://github.com/your-username/dompdf-watermark-system.git`
+  - **Navigate to the project folder**: `cd dompdf-watermark-system`
+  - **Install Composer dependencies**: `composer require dompdf/dompdf`
+  - **Upload a watermark image**: Place the watermark image (`X.png`) inside the `public/uploads/` directory.
+
+- **Code Explanation**:
+  - The script uses `DOMPDF` to generate a PDF with watermarks.
+  - The watermark image is base64 encoded and added to the center of each page with a low opacity.
+  - The text watermark is positioned on the left side of each page, rotated, and with added spacing between the characters.
+
+Make sure you have Composer installed to manage the PHP dependencies.
